@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>関節可動域測定クイズ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- ヘッダー -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">関節可動域測定クイズ</h1>
+                <p class="text-gray-600 dark:text-gray-300">基本軸、移動軸、参考可動域を答えてください</p>
+            </div>
+
+            <!-- クイズ設定画面 -->
+            <div id="quizSettings" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 text-center">クイズ設定</h2>
+                
+                <!-- 問題数設定 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-3">問題数</h3>
+                    <div class="flex items-center space-x-4">
+                        <input type="number" id="questionCount" min="1" max="50" value="10" class="w-20 px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        <span class="text-gray-600 dark:text-gray-300">問</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">(1〜50問)</span>
+                    </div>
+                </div>
+
+                <!-- 部位選択 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-3">出題部位を選択</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <label class="flex items-center p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-all" value="全部位" class="mr-3 text-primary focus:ring-primary" checked>
+                            <div>
+                                <div class="font-semibold text-purple-700 dark:text-purple-300">全部位</div>
+                                <div class="text-sm text-purple-600 dark:text-purple-400">全ての関節</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-shoulder-girdle" value="肩甲帯" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-blue-700 dark:text-blue-300">肩甲帯</div>
+                                <div class="text-sm text-blue-600 dark:text-blue-400">屈曲・伸展・挙上・引き下げ</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-shoulder" value="肩" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-green-700 dark:text-green-300">肩</div>
+                                <div class="text-sm text-green-600 dark:text-green-400">屈曲・伸展・外転・内転・回旋</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-elbow" value="肘" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-yellow-700 dark:text-yellow-300">肘</div>
+                                <div class="text-sm text-yellow-600 dark:text-yellow-400">屈曲・伸展</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-forearm" value="前腕" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-indigo-700 dark:text-indigo-300">前腕</div>
+                                <div class="text-sm text-indigo-600 dark:text-indigo-400">回内・回外</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-700 rounded-lg hover:bg-pink-100 dark:hover:bg-pink-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-wrist" value="手" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-pink-700 dark:text-pink-300">手</div>
+                                <div class="text-sm text-pink-600 dark:text-pink-400">屈曲・伸展・橈屈・尺屈</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-thumb" value="母指" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-red-700 dark:text-red-300">母指</div>
+                                <div class="text-sm text-red-600 dark:text-red-400">外転・内転・屈曲・伸展</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-finger" value="指" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-orange-700 dark:text-orange-300">指</div>
+                                <div class="text-sm text-orange-600 dark:text-orange-400">屈曲・伸展・外転・内転</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-hip" value="股" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-teal-700 dark:text-teal-300">股</div>
+                                <div class="text-sm text-teal-600 dark:text-teal-400">屈曲・伸展・外転・内転・回旋</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-knee" value="膝" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-cyan-700 dark:text-cyan-300">膝</div>
+                                <div class="text-sm text-cyan-600 dark:text-cyan-400">屈曲・伸展</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">
+                            <input type="checkbox" id="part-ankle" value="足関節・足部" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-gray-700 dark:text-gray-300">足関節・足部</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">外転・内転・背屈・底屈</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-great-toe" value="第1趾" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-emerald-700 dark:text-emerald-300">第1趾</div>
+                                <div class="text-sm text-emerald-600 dark:text-emerald-400">屈曲・伸展</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-lesser-toes" value="趾" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-amber-700 dark:text-amber-300">趾</div>
+                                <div class="text-sm text-amber-600 dark:text-amber-400">屈曲・伸展</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-cervical" value="頚部" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-violet-700 dark:text-violet-300">頚部</div>
+                                <div class="text-sm text-violet-600 dark:text-violet-400">屈曲・伸展・回旋・側屈</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900/30 cursor-pointer">
+                            <input type="checkbox" id="part-thoracolumbar" value="胸腰部" class="mr-3 text-primary focus:ring-primary">
+                            <div>
+                                <div class="font-semibold text-slate-700 dark:text-slate-300">胸腰部</div>
+                                <div class="text-sm text-slate-600 dark:text-slate-400">屈曲・伸展・回旋・側屈</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ボタン -->
+                <div class="flex justify-center">
+                    <button onclick="startQuizWithSettings()" class="bg-primary text-white py-3 px-8 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                        クイズ開始
+                    </button>
+                </div>
+            </div>
+
+            <!-- スコア表示 -->
+            <div id="scoreSection" class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6 hidden">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                        問題: <span id="currentQuestion">1</span> / <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                        スコア: <span id="currentScore" class="text-primary font-semibold">0</span> / <span id="maxScore" class="text-primary font-semibold">30</span>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2 mt-2">
+                    <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- 問題表示エリア -->
+            <div id="questionArea" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">問題</h2>
+                    <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 rounded">
+                        <div class="text-lg font-medium text-gray-800 dark:text-white">
+                            部位: <span id="questionPart" class="text-primary font-bold"></span>
+                        </div>
+                        <div class="text-lg font-medium text-gray-800 dark:text-white mt-2">
+                            運動方向: <span id="questionMovement" class="text-primary font-bold"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- 回答入力フォーム -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="basicAxis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">基本軸 (10点)</label>
+                        <input type="text" id="basicAxis" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="基本軸を入力してください">
+                    </div>
+                    
+                    <div>
+                        <label for="movingAxis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">移動軸 (10点)</label>
+                        <input type="text" id="movingAxis" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="移動軸を入力してください">
+                    </div>
+                    
+                    <div>
+                        <label for="rangeOfMotion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">参考可動域 (10点)</label>
+                        <input type="text" id="rangeOfMotion" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="例: 0-180°">
+                    </div>
+                </div>
+
+                <button id="submitAnswer" class="w-full mt-6 bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                    回答する
+                </button>
+            </div>
+
+            <!-- 結果表示エリア -->
+            <div id="resultArea" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6 hidden">
+                <h3 class="text-xl font-semibold mb-4" id="resultTitle"></h3>
+                
+                <!-- 問題内容の再表示 -->
+                <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 rounded">
+                    <h4 class="font-medium text-gray-800 dark:text-white mb-2">📋 出題された問題</h4>
+                    <div class="text-sm">
+                        <div class="mb-1"><strong>部位:</strong> <span id="resultQuestionPart" class="text-primary font-medium"></span></div>
+                        <div><strong>運動方向:</strong> <span id="resultQuestionMovement" class="text-primary font-medium"></span></div>
+                    </div>
+                </div>
+                
+                <!-- 獲得スコア表示 -->
+                <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-center">
+                        <span class="text-sm text-gray-600 dark:text-gray-300">この問題の獲得スコア: </span>
+                        <span id="questionScore" class="text-lg font-bold text-primary">0/30</span>
+                    </div>
+                </div>
+
+                <!-- あなたの回答と正解の比較 -->
+                <div class="space-y-4">
+                    <div id="basicAxisComparison" class="p-4 rounded-lg border"></div>
+                    <div id="movingAxisComparison" class="p-4 rounded-lg border"></div>
+                    <div id="rangeComparison" class="p-4 rounded-lg border"></div>
+                </div>
+
+                <!-- 参考画像 -->
+                <div class="mt-4 mb-4">
+                    <h4 class="font-medium text-gray-800 dark:text-white mb-3">📸 測定方法の参考図</h4>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <img id="resultReferenceImage" src="" alt="測定方法の参考図" class="w-full max-w-md mx-auto rounded-lg shadow-md" style="display: none;">
+                        <div id="resultImageLoading" class="text-center text-gray-500 dark:text-gray-400">画像を読み込み中...</div>
+                    </div>
+                </div>
+
+                <!-- 測定の注意点 -->
+                <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-500 rounded">
+                    <h4 class="font-medium text-gray-800 dark:text-white mb-2">📝 測定肢位・注意点</h4>
+                    <div class="text-sm text-gray-600 dark:text-gray-300" id="measurementNotes"></div>
+                </div>
+
+                <button id="nextQuestion" class="w-full mt-4 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    次の問題
+                </button>
+            </div>
+
+            <!-- 最終結果 -->
+            <div id="finalResult" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hidden">
+                <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">クイズ完了！</h2>
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-bold text-primary mb-2" id="finalScore"></div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4" id="finalMessage"></p>
+                </div>
+
+                <!-- おさらい表 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">📊 結果一覧</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse border border-gray-300 dark:border-gray-600">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-left">問題</th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-left">あなたの回答</th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-left">正解</th>
+                                    <th class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-center">スコア</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewTableBody" class="text-gray-700 dark:text-gray-300">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="restartQuiz" class="flex-1 bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                        もう一度挑戦
+                    </button>
+                    <button id="changeDifficulty" class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-700 transition-colors">
+                        設定変更
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ダークモード設定
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // CSVデータから生成された関節可動域データ
+        const romData = [
+            {id: 1, pair_id: 1, part: "肩甲帯", partEn: "shoulder_girdle", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_girdle_flexion_extension.png"},
+            {id: 2, pair_id: 1, part: "肩甲帯", partEn: "shoulder_girdle", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_girdle_flexion_extension.png"},
+            {id: 3, pair_id: 2, part: "肩甲帯", partEn: "shoulder_girdle", movement: "挙上", movementEn: "elevation", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "肩峰と胸骨上縁を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_girdle_elevation_depression.png"},
+            {id: 4, pair_id: 2, part: "肩甲帯", partEn: "shoulder_girdle", movement: "引き下げ", movementEn: "depression", subMovement: "(下制)", minValue: 0, maxValue: 10, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_girdle_elevation_depression.png"},
+            {id: 5, pair_id: 3, part: "肩", partEn: "shoulder", movement: "屈曲", movementEn: "flexion", subMovement: "(前方挙上)", minValue: 0, maxValue: 180, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹が動かないように固定する. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_flexion_extension.png"},
+            {id: 6, pair_id: 3, part: "肩", partEn: "shoulder", movement: "伸展", movementEn: "extension", subMovement: "(後方挙上)", minValue: 0, maxValue: 50, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹が動かないように固定する. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_flexion_extension.png"},
+            {id: 7, pair_id: 4, part: "肩", partEn: "shoulder", movement: "外転", movementEn: "abduction", subMovement: "(側方挙上)", minValue: 0, maxValue: 180, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹の側屈が起こらないように90°以上になったら前腕を回外することを原則とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_abduction_adduction.png"},
+            {id: 8, pair_id: 4, part: "肩", partEn: "shoulder", movement: "内転", movementEn: "adduction", subMovement: "", minValue: 0, maxValue: 75, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "20°または45°肩関節屈曲位で行う. 立位で行う. (肩甲帯の動きを含む, その他の検査法に基づく)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_abduction_adduction.png"},
+            {id: 9, pair_id: 5, part: "肩", partEn: "shoulder", movement: "外旋", movementEn: "external_rotation", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "肘を通る前額面への垂直線", movingAxis: "尺骨", notes: "上腕を体幹に接して肘関節を前方に90°に屈曲した肢位で行う. 前腕は中間位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_rotation.png"},
+            {id: 10, pair_id: 5, part: "肩", partEn: "shoulder", movement: "内旋", movementEn: "internal_rotation", subMovement: "", minValue: 0, maxValue: 70, unit: "°", basicAxis: "肘を通る前額面への垂直線", movingAxis: "尺骨", notes: "上腕を体幹に接して肘関節を前方に90°に屈曲した肢位で行う. 前腕は中間位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_rotation.png"},
+            {id: 11, pair_id: 6, part: "肩", partEn: "shoulder", movement: "水平屈曲", movementEn: "horizontal_flexion", subMovement: "", minValue: 0, maxValue: 135, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "肩関節を90°外転位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_horizontal_flexion_extension.png"},
+            {id: 12, pair_id: 6, part: "肩", partEn: "shoulder", movement: "水平伸展", movementEn: "horizontal_extension", subMovement: "", minValue: 0, maxValue: 30, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "肩関節を90°外転位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/shoulder_horizontal_flexion_extension.png"},
+            {id: 13, pair_id: 7, part: "肘", partEn: "elbow", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 145, unit: "°", basicAxis: "上腕骨", movingAxis: "橈骨", notes: "前腕は回外位とする.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/elbow_flexion_extension.png"},
+            {id: 14, pair_id: 7, part: "肘", partEn: "elbow", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 5, unit: "°", basicAxis: "上腕骨", movingAxis: "橈骨", notes: "前腕は回外位とする.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/elbow_flexion_extension.png"},
+            {id: 15, pair_id: 8, part: "前腕", partEn: "forearm", movement: "回内", movementEn: "pronation", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "上腕骨", movingAxis: "手指を伸展した手掌面", notes: "肩の回旋が入らないように肘を90°に屈曲する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/forearm_pronation_supination.png"},
+            {id: 16, pair_id: 8, part: "前腕", partEn: "forearm", movement: "回外", movementEn: "supination", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "上腕骨", movingAxis: "手指を伸展した手掌面", notes: "肩の回旋が入らないように肘を90°に屈曲する.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/forearm_pronation_supination.png"},
+            {id: 17, pair_id: 9, part: "手", partEn: "wrist", movement: "屈曲", movementEn: "flexion", subMovement: "(掌屈)", minValue: 0, maxValue: 90, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕は中間位とする.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/wrist_flexion_extension.png"},
+            {id: 18, pair_id: 9, part: "手", partEn: "wrist", movement: "伸展", movementEn: "extension", subMovement: "(背屈)", minValue: 0, maxValue: 70, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕は中間位とする.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/wrist_flexion_extension.png"},
+            {id: 19, pair_id: 10, part: "手", partEn: "wrist", movement: "橈屈", movementEn: "radial_deviation", subMovement: "", minValue: 0, maxValue: 25, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕を回内位で行う.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/wrist_deviation.png"},
+            {id: 20, pair_id: 10, part: "手", partEn: "wrist", movement: "尺屈", movementEn: "ulnar_deviation", subMovement: "", minValue: 0, maxValue: 55, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕を回内位で行う.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/wrist_deviation.png"},
+            // 母指、指、股、膝、足関節・足部、第1趾、趾、頚部、胸腰部のデータも同様に追加...
+            // CSVの全72行分のデータが入ります
+            {id: 67, pair_id: 34, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "屈曲", movementEn: "flexion", subMovement: "(前屈)", minValue: 0, maxValue: 45, unit: "°", basicAxis: "仙骨後面", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹側面より行う. 立位, 腰かけ座位または側臥位で行う. 股関節の運動が入らないように行う.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/thoracolumbar_flexion_extension.png"},
+            {id: 68, pair_id: 34, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "伸展", movementEn: "extension", subMovement: "(後屈)", minValue: 0, maxValue: 30, unit: "°", basicAxis: "仙骨後面", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹側面より行う. 立位, 腰かけ座位または側臥位で行う. 股関節の運動が入らないように行う.", imageUrl: "https://raw.githubusercontent.com/tomoda@tumh.ac.jp/rom-game-assets/main/ROM_pic/thoracolumbar_flexion_extension.png"}
+        ];
+
+        // 新しいCSVデータから生成された完全な関節可動域データ
+        const fullRomData = [
+            {id: 1, pair_id: 1, part: "肩甲帯", partEn: "shoulder_girdle", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_girdle_flexion_extension.png"},
+            {id: 2, pair_id: 1, part: "肩甲帯", partEn: "shoulder_girdle", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_girdle_flexion_extension.png"},
+            {id: 3, pair_id: 2, part: "肩甲帯", partEn: "shoulder_girdle", movement: "挙上", movementEn: "elevation", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "肩峰と胸骨上縁を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_girdle_elevation_depression.png"},
+            {id: 4, pair_id: 2, part: "肩甲帯", partEn: "shoulder_girdle", movement: "引き下げ", movementEn: "depression", subMovement: "(下制)", minValue: 0, maxValue: 10, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "頭頂と肩峰を結ぶ線", notes: "背面から測定する. 脊柱が前後屈しないように注意する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_girdle_elevation_depression.png"},
+            {id: 5, pair_id: 3, part: "肩", partEn: "shoulder", movement: "屈曲", movementEn: "flexion", subMovement: "(前方挙上)", minValue: 0, maxValue: 180, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹が動かないように固定する. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_flexion_extension.png"},
+            {id: 6, pair_id: 3, part: "肩", partEn: "shoulder", movement: "伸展", movementEn: "extension", subMovement: "(後方挙上)", minValue: 0, maxValue: 50, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹が動かないように固定する. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_flexion_extension.png"},
+            {id: 7, pair_id: 4, part: "肩", partEn: "shoulder", movement: "外転", movementEn: "abduction", subMovement: "(側方挙上)", minValue: 0, maxValue: 180, unit: "°", basicAxis: "肩峰を通る床への垂直線（立位または座位）", movingAxis: "上腕骨", notes: "体幹の側屈が起こらないように90°以上になったら前腕を回外することを原則とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_abduction_adduction.png"},
+            {id: 8, pair_id: 4, part: "肩", partEn: "shoulder", movement: "内転", movementEn: "adduction", subMovement: "", minValue: 0, maxValue: 75, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "20°または45°肩関節屈曲位で行う. 立位で行う. (肩甲帯の動きを含む, その他の検査法に基づく)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_abduction_adduction.png"},
+            {id: 9, pair_id: 5, part: "肩", partEn: "shoulder", movement: "外旋", movementEn: "external_rotation", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "肘を通る前額面への垂直線", movingAxis: "尺骨", notes: "上腕を体幹に接して肘関節を前方に90°に屈曲した肢位で行う. 前腕は中間位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_rotation.png"},
+            {id: 10, pair_id: 5, part: "肩", partEn: "shoulder", movement: "内旋", movementEn: "internal_rotation", subMovement: "", minValue: 0, maxValue: 70, unit: "°", basicAxis: "肘を通る前額面への垂直線", movingAxis: "尺骨", notes: "上腕を体幹に接して肘関節を前方に90°に屈曲した肢位で行う. 前腕は中間位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_rotation.png"},
+            {id: 11, pair_id: 6, part: "肩", partEn: "shoulder", movement: "水平屈曲", movementEn: "horizontal_flexion", subMovement: "", minValue: 0, maxValue: 135, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "肩関節を90°外転位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_horizontal_flexion_extension.png"},
+            {id: 12, pair_id: 6, part: "肩", partEn: "shoulder", movement: "水平伸展", movementEn: "horizontal_extension", subMovement: "", minValue: 0, maxValue: 30, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "上腕骨", notes: "肩関節を90°外転位とする. (肩甲帯の動きを含む)", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/shoulder_horizontal_flexion_extension.png"},
+            {id: 13, pair_id: 7, part: "肘", partEn: "elbow", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 145, unit: "°", basicAxis: "上腕骨", movingAxis: "橈骨", notes: "前腕は回外位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/elbow_flexion_extension.png"},
+            {id: 14, pair_id: 7, part: "肘", partEn: "elbow", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 5, unit: "°", basicAxis: "上腕骨", movingAxis: "橈骨", notes: "前腕は回外位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/elbow_flexion_extension.png"},
+            {id: 15, pair_id: 8, part: "前腕", partEn: "forearm", movement: "回内", movementEn: "pronation", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "上腕骨", movingAxis: "手指を伸展した手掌面", notes: "肩の回旋が入らないように肘を90°に屈曲する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/forearm_pronation_supination.png"},
+            {id: 16, pair_id: 8, part: "前腕", partEn: "forearm", movement: "回外", movementEn: "supination", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "上腕骨", movingAxis: "手指を伸展した手掌面", notes: "肩の回旋が入らないように肘を90°に屈曲する.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/forearm_pronation_supination.png"},
+            {id: 17, pair_id: 9, part: "手", partEn: "wrist", movement: "屈曲", movementEn: "flexion", subMovement: "(掌屈)", minValue: 0, maxValue: 90, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕は中間位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/wrist_flexion_extension.png"},
+            {id: 18, pair_id: 9, part: "手", partEn: "wrist", movement: "伸展", movementEn: "extension", subMovement: "(背屈)", minValue: 0, maxValue: 70, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕は中間位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/wrist_flexion_extension.png"},
+            {id: 19, pair_id: 10, part: "手", partEn: "wrist", movement: "橈屈", movementEn: "radial_deviation", subMovement: "", minValue: 0, maxValue: 25, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕を回内位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/wrist_deviation.png"},
+            {id: 20, pair_id: 10, part: "手", partEn: "wrist", movement: "尺屈", movementEn: "ulnar_deviation", subMovement: "", minValue: 0, maxValue: 55, unit: "°", basicAxis: "前腕の中央線", movingAxis: "第3中手骨", notes: "前腕を回内位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/wrist_deviation.png"},
+            {id: 21, pair_id: 11, part: "母指", partEn: "thumb", movement: "橈側外転", movementEn: "radial_abduction", subMovement: "", minValue: 0, maxValue: 60, unit: "°", basicAxis: "第2中手骨", movingAxis: "第1中手骨", notes: "運動は手掌面とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_radial_ulnar_abduction.png"},
+            {id: 22, pair_id: 11, part: "母指", partEn: "thumb", movement: "尺側内転", movementEn: "ulnar_adduction", subMovement: "", minValue: 0, maxValue: 0, unit: "°", basicAxis: "第2中手骨", movingAxis: "第1中手骨", notes: "運動は手掌面とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_radial_ulnar_abduction.png"},
+            {id: 23, pair_id: 12, part: "母指", partEn: "thumb", movement: "掌側外転", movementEn: "palmar_abduction", subMovement: "", minValue: 0, maxValue: 90, unit: "°", basicAxis: "示指（橈骨の延長上）", movingAxis: "母指", notes: "運動は手掌面に直角な面とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_palmar_abduction_adduction.png"},
+            {id: 24, pair_id: 12, part: "母指", partEn: "thumb", movement: "掌側内転", movementEn: "palmar_adduction", subMovement: "", minValue: 0, maxValue: 0, unit: "°", basicAxis: "示指（橈骨の延長上）", movingAxis: "母指", notes: "運動は手掌面に直角な面とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_palmar_abduction_adduction.png"},
+            {id: 25, pair_id: 13, part: "母指", partEn: "thumb", movement: "屈曲", movementEn: "flexion", subMovement: "(MCP)", minValue: 0, maxValue: 60, unit: "°", basicAxis: "第1中手骨", movingAxis: "第1基節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_mcp_flexion_extension.png"},
+            {id: 26, pair_id: 13, part: "母指", partEn: "thumb", movement: "伸展", movementEn: "extension", subMovement: "(MCP)", minValue: 0, maxValue: 10, unit: "°", basicAxis: "第1中手骨", movingAxis: "第1基節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_mcp_flexion_extension.png"},
+            {id: 27, pair_id: 14, part: "母指", partEn: "thumb", movement: "屈曲", movementEn: "flexion", subMovement: "(IP)", minValue: 0, maxValue: 80, unit: "°", basicAxis: "第1基節骨", movingAxis: "第1末節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_ip_flexion_extension.png"},
+            {id: 28, pair_id: 14, part: "母指", partEn: "thumb", movement: "伸展", movementEn: "extension", subMovement: "(IP)", minValue: 0, maxValue: 10, unit: "°", basicAxis: "第1基節骨", movingAxis: "第1末節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thumb_ip_flexion_extension.png"},
+            {id: 29, pair_id: 15, part: "指", partEn: "finger", movement: "屈曲", movementEn: "flexion", subMovement: "(MCP)", minValue: 0, maxValue: 90, unit: "°", basicAxis: "第2-5中手骨", movingAxis: "第2-5基節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_mcp_flexion_extension.png"},
+            {id: 30, pair_id: 15, part: "指", partEn: "finger", movement: "伸展", movementEn: "extension", subMovement: "(MCP)", minValue: 0, maxValue: 45, unit: "°", basicAxis: "第2-5中手骨", movingAxis: "第2-5基節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_mcp_flexion_extension.png"},
+            {id: 31, pair_id: 16, part: "指", partEn: "finger", movement: "屈曲", movementEn: "flexion", subMovement: "(PIP)", minValue: 0, maxValue: 100, unit: "°", basicAxis: "第2-5基節骨", movingAxis: "第2-5中節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_pip_flexion_extension.png"},
+            {id: 32, pair_id: 16, part: "指", partEn: "finger", movement: "伸展", movementEn: "extension", subMovement: "(PIP)", minValue: 0, maxValue: 0, unit: "°", basicAxis: "第2-5基節骨", movingAxis: "第2-5中節骨", notes: "原則として手指の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_pip_flexion_extension.png"},
+            {id: 33, pair_id: 17, part: "指", partEn: "finger", movement: "屈曲", movementEn: "flexion", subMovement: "(DIP)", minValue: 0, maxValue: 80, unit: "°", basicAxis: "第2-5中節骨", movingAxis: "第2-5末節骨", notes: "DIPは10°の過伸展をとりうる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_dip_flexion_extension.png"},
+            {id: 34, pair_id: 17, part: "指", partEn: "finger", movement: "伸展", movementEn: "extension", subMovement: "(DIP)", minValue: 0, maxValue: 0, unit: "°", basicAxis: "第2-5中節骨", movingAxis: "第2-5末節骨", notes: "DIPは10°の過伸展をとりうる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_dip_flexion_extension.png"},
+            {id: 35, pair_id: 18, part: "指", partEn: "finger", movement: "外転", movementEn: "abduction", subMovement: "", minValue: "N/A", maxValue: "N/A", unit: "cm", basicAxis: "第3中手骨延長線", movingAxis: "第2,4,5指軸", notes: "中指先端と2,4,5指先端との距離(cm)で表示する. 中指の運動は橈側外転, 尺側外転とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_abduction_adduction.png"},
+            {id: 36, pair_id: 18, part: "指", partEn: "finger", movement: "内転", movementEn: "adduction", subMovement: "", minValue: "N/A", maxValue: "N/A", unit: "cm", basicAxis: "第3中手骨延長線", movingAxis: "第2,4,5指軸", notes: "中指先端と2,4,5指先端との距離(cm)で表示する. 中指の運動は橈側外転, 尺側外転とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/finger_abduction_adduction.png"},
+            {id: 37, pair_id: 19, part: "股", partEn: "hip", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 125, unit: "°", basicAxis: "体幹と平行な線", movingAxis: "大腿骨(大転子と大腿骨外顆の中心を結ぶ線)", notes: "骨盤と脊柱を十分に固定する. 屈曲は背臥位, 膝屈曲位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_flexion_extension.png"},
+            {id: 38, pair_id: 19, part: "股", partEn: "hip", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 15, unit: "°", basicAxis: "体幹と平行な線", movingAxis: "大腿骨(大転子と大腿骨外顆の中心を結ぶ線)", notes: "伸展は腹臥位, 膝伸展位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_flexion_extension.png"},
+            {id: 39, pair_id: 20, part: "股", partEn: "hip", movement: "外転", movementEn: "abduction", subMovement: "", minValue: 0, maxValue: 45, unit: "°", basicAxis: "両側の上前腸骨棘を結ぶ線への垂直線", movingAxis: "大腿中央線(上前腸骨棘より膝蓋骨中心を結ぶ線)", notes: "背臥位で骨盤を固定する. 下肢は外旋しないようにする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_abduction_adduction.png"},
+            {id: 40, pair_id: 20, part: "股", partEn: "hip", movement: "内転", movementEn: "adduction", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "両側の上前腸骨棘を結ぶ線への垂直線", movingAxis: "大腿中央線(上前腸骨棘より膝蓋骨中心を結ぶ線)", notes: "内転の場合は反対側の下肢を屈曲挙上してその下を通して内転させる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_abduction_adduction.png"},
+            {id: 41, pair_id: 21, part: "股", partEn: "hip", movement: "外旋", movementEn: "external_rotation", subMovement: "", minValue: 0, maxValue: 45, unit: "°", basicAxis: "膝蓋骨より下ろした垂直線", movingAxis: "下腿中央線(膝蓋骨中心より足関節内外果中央を結ぶ線)", notes: "背臥位で股関節と膝関節を90°屈曲位にして行う. 骨盤の代償を少なくする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_rotation.png"},
+            {id: 42, pair_id: 21, part: "股", partEn: "hip", movement: "内旋", movementEn: "internal_rotation", subMovement: "", minValue: 0, maxValue: 45, unit: "°", basicAxis: "膝蓋骨より下ろした垂直線", movingAxis: "下腿中央線(膝蓋骨中心より足関節内外果中央を結ぶ線)", notes: "背臥位で股関節と膝関節を90°屈曲位にして行う. 骨盤の代償を少なくする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/hip_rotation.png"},
+            {id: 43, pair_id: 22, part: "膝", partEn: "knee", movement: "屈曲", movementEn: "flexion", subMovement: "", minValue: 0, maxValue: 130, unit: "°", basicAxis: "大腿骨", movingAxis: "腓骨(腓骨頭と外果を結ぶ線)", notes: "屈曲は股関節を屈曲位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/knee_flexion_extension.png"},
+            {id: 44, pair_id: 22, part: "膝", partEn: "knee", movement: "伸展", movementEn: "extension", subMovement: "", minValue: 0, maxValue: 0, unit: "°", basicAxis: "大腿骨", movingAxis: "腓骨(腓骨頭と外果を結ぶ線)", notes: "伸展の参考可動域は0°.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/knee_flexion_extension.png"},
+            {id: 45, pair_id: 23, part: "足関節・足部", partEn: "ankle_foot", movement: "外転", movementEn: "abduction", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "第2中足骨長軸", movingAxis: "第2中足骨長軸", notes: "膝関節を屈曲位, 足関節を0度で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_abduction_adduction.png"},
+            {id: 46, pair_id: 23, part: "足関節・足部", partEn: "ankle_foot", movement: "内転", movementEn: "adduction", subMovement: "", minValue: 0, maxValue: 10, unit: "°", basicAxis: "第2中足骨長軸", movingAxis: "第2中足骨長軸", notes: "膝関節を屈曲位, 足関節を0度で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_abduction_adduction.png"},
+            {id: 47, pair_id: 24, part: "足関節・足部", partEn: "ankle_foot", movement: "背屈", movementEn: "dorsiflexion", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "矢状面における腓骨長軸への垂直線", movingAxis: "第5中足骨長軸", notes: "膝関節を屈曲位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_dorsiflexion_plantarflexion.png"},
+            {id: 48, pair_id: 24, part: "足関節・足部", partEn: "ankle_foot", movement: "底屈", movementEn: "plantar_flexion", subMovement: "", minValue: 0, maxValue: 45, unit: "°", basicAxis: "矢状面における腓骨長軸への垂直線", movingAxis: "第5中足骨長軸", notes: "膝関節を屈曲位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_dorsiflexion_plantarflexion.png"},
+            {id: 49, pair_id: 25, part: "足関節・足部", partEn: "ankle_foot", movement: "内がえし", movementEn: "inversion", subMovement: "", minValue: 0, maxValue: 30, unit: "°", basicAxis: "前額面における下腿軸への垂直線", movingAxis: "足底面", notes: "膝関節を屈曲位, 足関節を0度で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_inversion_eversion.png"},
+            {id: 50, pair_id: 25, part: "足関節・足部", partEn: "ankle_foot", movement: "外がえし", movementEn: "eversion", subMovement: "", minValue: 0, maxValue: 20, unit: "°", basicAxis: "前額面における下腿軸への垂直線", movingAxis: "足底面", notes: "膝関節を屈曲位, 足関節を0度で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/ankle_inversion_eversion.png"},
+            {id: 51, pair_id: 26, part: "第1趾", partEn: "great_toe", movement: "屈曲", movementEn: "flexion", subMovement: "(MTP)", minValue: 0, maxValue: 35, unit: "°", basicAxis: "第1中足骨", movingAxis: "第1基節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/great_toe_mtp_flexion_extension.png"},
+            {id: 52, pair_id: 26, part: "第1趾", partEn: "great_toe", movement: "伸展", movementEn: "extension", subMovement: "(MTP)", minValue: 0, maxValue: 60, unit: "°", basicAxis: "第1中足骨", movingAxis: "第1基節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/great_toe_mtp_flexion_extension.png"},
+            {id: 53, pair_id: 27, part: "第1趾", partEn: "great_toe", movement: "屈曲", movementEn: "flexion", subMovement: "(IP)", minValue: 0, maxValue: 60, unit: "°", basicAxis: "第1基節骨", movingAxis: "第1末節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/great_toe_ip_flexion_extension.png"},
+            {id: 54, pair_id: 27, part: "第1趾", partEn: "great_toe", movement: "伸展", movementEn: "extension", subMovement: "(IP)", minValue: 0, maxValue: 0, unit: "°", basicAxis: "第1基節骨", movingAxis: "第1末節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/great_toe_ip_flexion_extension.png"},
+            {id: 55, pair_id: 28, part: "趾", partEn: "lesser_toes", movement: "屈曲", movementEn: "flexion", subMovement: "(MTP)", minValue: 0, maxValue: 40, unit: "°", basicAxis: "第2-5中足骨", movingAxis: "第2-5基節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_mtp_flexion_extension.png"},
+            {id: 56, pair_id: 28, part: "趾", partEn: "lesser_toes", movement: "伸展", movementEn: "extension", subMovement: "(MTP)", minValue: 0, maxValue: 40, unit: "°", basicAxis: "第2-5中足骨", movingAxis: "第2-5基節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_mtp_flexion_extension.png"},
+            {id: 57, pair_id: 29, part: "趾", partEn: "lesser_toes", movement: "屈曲", movementEn: "flexion", subMovement: "(PIP)", minValue: 0, maxValue: 35, unit: "°", basicAxis: "第2-5基節骨", movingAxis: "第2-5中節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_pip_flexion_extension.png"},
+            {id: 58, pair_id: 29, part: "趾", partEn: "lesser_toes", movement: "伸展", movementEn: "extension", subMovement: "(PIP)", minValue: 0, maxValue: 0, unit: "°", basicAxis: "第2-5基節骨", movingAxis: "第2-5中節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_pip_flexion_extension.png"},
+            {id: 59, pair_id: 30, part: "趾", partEn: "lesser_toes", movement: "屈曲", movementEn: "flexion", subMovement: "(DIP)", minValue: 0, maxValue: 50, unit: "°", basicAxis: "第2-5中節骨", movingAxis: "第2-5末節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_dip_flexion_extension.png"},
+            {id: 60, pair_id: 30, part: "趾", partEn: "lesser_toes", movement: "伸展", movementEn: "extension", subMovement: "(DIP)", minValue: -10, maxValue: 0, unit: "°", basicAxis: "第2-5中節骨", movingAxis: "第2-5末節骨", notes: "原則として趾の背側に角度計をあてる.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/lesser_toes_dip_flexion_extension.png"},
+            {id: 61, pair_id: 31, part: "頚部", partEn: "cervical_spine", movement: "屈曲", movementEn: "flexion", subMovement: "(前屈)", minValue: 0, maxValue: 60, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "外耳孔と頭頂を結ぶ線", notes: "頭部体幹の側面で行う. 原則として腰かけ座位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_flexion_extension.png"},
+            {id: 62, pair_id: 31, part: "頚部", partEn: "cervical_spine", movement: "伸展", movementEn: "extension", subMovement: "(後屈)", minValue: 0, maxValue: 50, unit: "°", basicAxis: "肩峰を通る床への垂直線", movingAxis: "外耳孔と頭頂を結ぶ線", notes: "頭部体幹の側面で行う. 原則として腰かけ座位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_flexion_extension.png"},
+            {id: 63, pair_id: 32, part: "頚部", partEn: "cervical_spine", movement: "右回旋", movementEn: "rotation_right", subMovement: "", minValue: 0, maxValue: 60, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "鼻梁と後頭結節を結ぶ線", notes: "腰かけ座位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_rotation.png"},
+            {id: 64, pair_id: 32, part: "頚部", partEn: "cervical_spine", movement: "左回旋", movementEn: "rotation_left", subMovement: "", minValue: 0, maxValue: 60, unit: "°", basicAxis: "両側の肩峰を結ぶ線", movingAxis: "鼻梁と後頭結節を結ぶ線", notes: "腰かけ座位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_rotation.png"},
+            {id: 65, pair_id: 33, part: "頚部", partEn: "cervical_spine", movement: "右側屈", movementEn: "lateral_bending_right", subMovement: "", minValue: 0, maxValue: 50, unit: "°", basicAxis: "第7頚椎棘突起と第1仙椎の棘突起を結ぶ線", movingAxis: "頭頂と第7頚椎棘突起を結ぶ線", notes: "体幹の背面で行う. 腰かけ座位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_lateral_bending.png"},
+            {id: 66, pair_id: 33, part: "頚部", partEn: "cervical_spine", movement: "左側屈", movementEn: "lateral_bending_left", subMovement: "", minValue: 0, maxValue: 50, unit: "°", basicAxis: "第7頚椎棘突起と第1仙椎の棘突起を結ぶ線", movingAxis: "頭頂と第7頚椎棘突起を結ぶ線", notes: "体幹の背面で行う. 腰かけ座位とする.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/cervical_lateral_bending.png"},
+            {id: 67, pair_id: 34, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "屈曲", movementEn: "flexion", subMovement: "(前屈)", minValue: 0, maxValue: 45, unit: "°", basicAxis: "仙骨後面", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹側面より行う. 立位, 腰かけ座位または側臥位で行う. 股関節の運動が入らないように行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_flexion_extension.png"},
+            {id: 68, pair_id: 34, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "伸展", movementEn: "extension", subMovement: "(後屈)", minValue: 0, maxValue: 30, unit: "°", basicAxis: "仙骨後面", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹側面より行う. 立位, 腰かけ座位または側臥位で行う. 股関節の運動が入らないように行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_flexion_extension.png"},
+            {id: 69, pair_id: 35, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "右回旋", movementEn: "rotation_right", subMovement: "", minValue: 0, maxValue: 40, unit: "°", basicAxis: "両側の上後腸骨棘を結ぶ線", movingAxis: "両側の肩峰を結ぶ線", notes: "座位で骨盤を固定して行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_rotation.png"},
+            {id: 70, pair_id: 35, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "左回旋", movementEn: "rotation_left", subMovement: "", minValue: 0, maxValue: 40, unit: "°", basicAxis: "両側の上後腸骨棘を結ぶ線", movingAxis: "両側の肩峰を結ぶ線", notes: "座位で骨盤を固定して行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_rotation.png"},
+            {id: 71, pair_id: 36, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "右側屈", movementEn: "lateral_bending_right", subMovement: "", minValue: 0, maxValue: 40, unit: "°", basicAxis: "ヤコビー(Jacoby)線の中点にたてた垂直線", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹の背面で行う. 腰かけ座位または立位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_lateral_bending.png"},
+            {id: 72, pair_id: 36, part: "胸腰部", partEn: "thoracolumbar_spine", movement: "左側屈", movementEn: "lateral_bending_left", subMovement: "", minValue: 0, maxValue: 40, unit: "°", basicAxis: "ヤコビー(Jacoby)線の中点にたてた垂直線", movingAxis: "第1胸椎棘突起と第5腰椎棘突起を結ぶ線", notes: "体幹の背面で行う. 腰かけ座位または立位で行う.", imageUrl: "https://raw.githubusercontent.com/tom20taka21tumh/rom-game-assets/main/ROM_pic/thoracolumbar_lateral_bending.png"}
+        ];
+
+        let currentQuestionIndex = 0;
+        let totalScore = 0;
+        let totalQuestions = 10;
+        let maxPossibleScore = 0;
+        let shuffledQuestions = [];
+        let currentDifficulty = 'normal';
+        let questionResults = []; // 各問題の結果を保存
+
+        // 設定に応じた問題選択
+        function getQuestionsBySettings(selectedParts, requestedCount) {
+            let filtered = [];
+            
+            // 選択された部位の問題を収集
+            for (let selectedPart of selectedParts) {
+                if (selectedPart === '全部位') {
+                    filtered = [...filtered, ...fullRomData];
+                } else {
+                    // 部位名での完全一致
+                    const partQuestions = fullRomData.filter(q => q.part === selectedPart);
+                    filtered = [...filtered, ...partQuestions];
+                }
+            }
+            
+            // 重複を削除
+            filtered = filtered.filter((question, index, self) => 
+                index === self.findIndex(q => q.id === question.id)
+            );
+            
+            // 問題数が少ない場合は重複を許可
+            if (filtered.length < requestedCount && filtered.length > 0) {
+                const repeated = [];
+                while (repeated.length < requestedCount) {
+                    repeated.push(...filtered);
+                }
+                filtered = repeated.slice(0, requestedCount);
+            }
+            
+            return filtered.sort(() => Math.random() - 0.5).slice(0, requestedCount);
+        }
+
+        // 設定からクイズ開始
+        function startQuizWithSettings() {
+            // チェックされた部位を取得
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedParts = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedParts.length === 0) {
+                showCustomAlert('出題部位を少なくとも1つ選択してください。');
+                return;
+            }
+            
+            // 問題数を取得
+            const requestedCount = parseInt(document.getElementById('questionCount').value);
+            if (requestedCount < 1 || requestedCount > 50) {
+                showCustomAlert('問題数は1〜50の間で入力してください。');
+                return;
+            }
+            
+            // 問題を生成
+            shuffledQuestions = getQuestionsBySettings(selectedParts, requestedCount);
+            
+            if (shuffledQuestions.length === 0) {
+                showCustomAlert('選択された部位に対応する問題がありません。');
+                return;
+            }
+            
+            // クイズ開始
+            currentDifficulty = selectedParts.join(', ');
+            totalQuestions = shuffledQuestions.length;
+            maxPossibleScore = totalQuestions * 30; // 各問題30点満点
+            
+            currentQuestionIndex = 0;
+            totalScore = 0;
+            questionResults = [];
+            
+            document.getElementById('quizSettings').classList.add('hidden');
+            document.getElementById('scoreSection').classList.remove('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            document.getElementById('currentQuestion').textContent = '1';
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('currentScore').textContent = '0';
+            document.getElementById('maxScore').textContent = maxPossibleScore;
+            document.getElementById('progressBar').style.width = `${(1 / totalQuestions) * 100}%`;
+            
+            showQuestion();
+        }
+
+        // カスタムアラート関数
+        function showCustomAlert(message) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="flex justify-end">
+                        <button class="px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded" onclick="this.closest('.fixed').remove()">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // 問題表示
+        function showQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            const movementText = question.subMovement ? `${question.movement}${question.subMovement}` : question.movement;
+            
+            document.getElementById('questionPart').textContent = question.part;
+            document.getElementById('questionMovement').textContent = movementText;
+            
+            // 入力フィールドクリア
+            document.getElementById('basicAxis').value = '';
+            document.getElementById('movingAxis').value = '';
+            document.getElementById('rangeOfMotion').value = '';
+        }
+
+        // 結果画面での参考画像の読み込み
+        function loadResultReferenceImage(imageUrl) {
+            const imageElement = document.getElementById('resultReferenceImage');
+            const loadingElement = document.getElementById('resultImageLoading');
+            
+            imageElement.style.display = 'none';
+            loadingElement.style.display = 'block';
+            loadingElement.textContent = '画像を読み込み中...';
+            
+            // 新しいGitHubのURLをそのまま使用
+            const fixedUrl = imageUrl;
+            
+            imageElement.onload = function() {
+                loadingElement.style.display = 'none';
+                imageElement.style.display = 'block';
+            };
+            
+            imageElement.onerror = function() {
+                loadingElement.textContent = '画像の読み込みに失敗しました';
+                imageElement.style.display = 'none';
+            };
+            
+            imageElement.src = fixedUrl;
+        }
+
+        // 回答チェック
+        function checkAnswer() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            const userBasicAxis = document.getElementById('basicAxis').value.trim();
+            const userMovingAxis = document.getElementById('movingAxis').value.trim();
+            const userRange = document.getElementById('rangeOfMotion').value.trim();
+            
+            // 正解の参考可動域を作成
+            let correctRangeText;
+            if (question.unit === 'cm' || question.minValue === 'N/A') {
+                correctRangeText = `距離で測定(${question.unit})`;
+            } else {
+                correctRangeText = `${question.minValue}-${question.maxValue}${question.unit}`;
+            }
+            
+            // 回答の正誤判定とスコア計算
+            const basicAxisScore = checkSimilarity(userBasicAxis, question.basicAxis) ? 10 : 0;
+            const movingAxisScore = checkSimilarity(userMovingAxis, question.movingAxis) ? 10 : 0;
+            const rangeScore = (question.unit === 'cm' || question.minValue === 'N/A') ? 
+                (userRange.includes('距離') || userRange.includes('cm') ? 10 : 0) :
+                checkRangeSimilarity(userRange, correctRangeText, question.minValue, question.maxValue) ? 10 : 0;
+            
+            const questionScore = basicAxisScore + movingAxisScore + rangeScore;
+            totalScore += questionScore;
+            
+            // 結果を保存
+            const result = {
+                question: question,
+                userAnswers: {
+                    basicAxis: userBasicAxis,
+                    movingAxis: userMovingAxis,
+                    range: userRange
+                },
+                scores: {
+                    basicAxis: basicAxisScore,
+                    movingAxis: movingAxisScore,
+                    range: rangeScore,
+                    total: questionScore
+                },
+                correctAnswers: {
+                    basicAxis: question.basicAxis,
+                    movingAxis: question.movingAxis,
+                    range: correctRangeText
+                }
+            };
+            questionResults.push(result);
+            
+            // 結果表示
+            showResult(result);
+        }
+
+        // 類似性チェック（簡易版）
+        function checkSimilarity(userAnswer, correctAnswer) {
+            if (!userAnswer) return false;
+            
+            const userWords = userAnswer.toLowerCase().replace(/[、。・]/g, ' ').split(/\s+/);
+            const correctWords = correctAnswer.toLowerCase().replace(/[、。・]/g, ' ').split(/\s+/);
+            
+            // 重要なキーワードの一致をチェック
+            let matchCount = 0;
+            for (let word of userWords) {
+                if (word.length > 1 && correctWords.some(cw => cw.includes(word) || word.includes(cw))) {
+                    matchCount++;
+                }
+            }
+            
+            return matchCount >= Math.min(2, correctWords.length * 0.5);
+        }
+
+        // 可動域の類似性チェック
+        function checkRangeSimilarity(userAnswer, correctAnswer, minVal, maxVal) {
+            if (!userAnswer) return false;
+            
+            // 数値を抽出
+            const userNumbers = userAnswer.match(/\d+/g);
+            if (!userNumbers || userNumbers.length < 2) return false;
+            
+            const userMin = parseInt(userNumbers[0]);
+            const userMax = parseInt(userNumbers[1]);
+            
+            return userMin == minVal && userMax == maxVal;
+        }
+
+        // 結果表示
+        function showResult(result) {
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+            
+            const questionScore = result.scores.total;
+            document.getElementById('resultTitle').textContent = questionScore === 30 ? '完璧！' : questionScore >= 20 ? '良い結果！' : questionScore >= 10 ? 'まずまず' : 'もう少し頑張りましょう';
+            document.getElementById('resultTitle').className = questionScore >= 20 ? 
+                'text-xl font-semibold mb-4 text-green-600 dark:text-green-400' : 
+                questionScore >= 10 ? 'text-xl font-semibold mb-4 text-yellow-600 dark:text-yellow-400' :
+                'text-xl font-semibold mb-4 text-red-600 dark:text-red-400';
+            
+            // 問題の詳細を表示
+            const movementText = result.question.subMovement ? 
+                `${result.question.movement}${result.question.subMovement}` : 
+                result.question.movement;
+                
+            document.getElementById('resultQuestionPart').textContent = result.question.part;
+            document.getElementById('resultQuestionMovement').textContent = movementText;
+            
+            document.getElementById('questionScore').textContent = `${questionScore}/30`;
+            
+            // 各項目の比較表示
+            displayComparison('basicAxisComparison', '基本軸', result.userAnswers.basicAxis, result.correctAnswers.basicAxis, result.scores.basicAxis);
+            displayComparison('movingAxisComparison', '移動軸', result.userAnswers.movingAxis, result.correctAnswers.movingAxis, result.scores.movingAxis);
+            displayComparison('rangeComparison', '参考可動域', result.userAnswers.range, result.correctAnswers.range, result.scores.range);
+            
+            document.getElementById('measurementNotes').textContent = result.question.notes;
+            
+            // 結果画面で画像を表示
+            loadResultReferenceImage(result.question.imageUrl);
+            
+            // スコア更新
+            document.getElementById('currentScore').textContent = totalScore;
+        }
+
+        function displayComparison(elementId, label, userAnswer, correctAnswer, score) {
+            const element = document.getElementById(elementId);
+            const isCorrect = score > 0;
+            const isEmpty = !userAnswer;
+            
+            element.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-gray-800 dark:text-white">${label}</h4>
+                    <span class="text-sm font-bold ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+                        ${score}/10点
+                    </span>
+                </div>
+                <div class="space-y-2">
+                    <div class="text-sm">
+                        <span class="text-gray-600 dark:text-gray-400">あなたの回答:</span>
+                        <span class="${isEmpty ? 'text-red-500 italic' : 'text-gray-800 dark:text-white'} ml-2">
+                            ${isEmpty ? '未回答' : userAnswer}
+                        </span>
+                    </div>
+                    <div class="text-sm">
+                        <span class="text-gray-600 dark:text-gray-400">正解:</span>
+                        <span class="text-green-600 dark:text-green-400 ml-2 font-medium">${correctAnswer}</span>
+                    </div>
+                </div>
+            `;
+            
+            element.className = `p-4 rounded-lg border ${isCorrect ? 'border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/30' : 'border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/30'}`;
+        }
+
+        // 次の問題
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex >= totalQuestions) {
+                showFinalResult();
+                return;
+            }
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`;
+            
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        // 最終結果表示
+        function showFinalResult() {
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('finalResult').classList.remove('hidden');
+            
+            const scorePercentage = Math.round((totalScore / maxPossibleScore) * 100);
+            document.getElementById('finalScore').textContent = `${totalScore}/${maxPossibleScore} (${scorePercentage}%)`;
+            
+            let message = '';
+            if (scorePercentage >= 90) message = '素晴らしい！完璧に近い理解度です！';
+            else if (scorePercentage >= 70) message = 'よくできました！しっかりと理解されています。';
+            else if (scorePercentage >= 50) message = '良い結果です。もう少し復習してみましょう。';
+            else message = '復習が必要です。基本から見直してみましょう。';
+            
+            document.getElementById('finalMessage').textContent = message;
+            
+            // おさらい表を作成
+            createReviewTable();
+        }
+
+        // おさらい表作成
+        function createReviewTable() {
+            const tbody = document.getElementById('reviewTableBody');
+            tbody.innerHTML = '';
+            
+            questionResults.forEach((result, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 dark:border-gray-600';
+                
+                const formatAnswer = (userAnswer, isCorrect) => {
+                    if (!userAnswer) return '<span class="text-red-500 italic">未回答</span>';
+                    return `<span class="${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">${userAnswer}</span>`;
+                };
+                
+                const movementText = result.question.subMovement ? 
+                    `${result.question.movement}${result.question.subMovement}` : 
+                    result.question.movement;
+                
+                row.innerHTML = `
+                    <td class="border border-gray-300 dark:border-gray-600 px-2 py-2">
+                        <div class="font-medium text-sm">${result.question.part}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">${movementText}</div>
+                    </td>
+                    <td class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-xs">
+                        <div class="mb-1"><strong>基本軸:</strong> ${formatAnswer(result.userAnswers.basicAxis, result.scores.basicAxis > 0)}</div>
+                        <div class="mb-1"><strong>移動軸:</strong> ${formatAnswer(result.userAnswers.movingAxis, result.scores.movingAxis > 0)}</div>
+                        <div><strong>可動域:</strong> ${formatAnswer(result.userAnswers.range, result.scores.range > 0)}</div>
+                    </td>
+                    <td class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-xs">
+                        <div class="mb-1"><strong>基本軸:</strong> <span class="text-green-600 dark:text-green-400">${result.correctAnswers.basicAxis}</span></div>
+                        <div class="mb-1"><strong>移動軸:</strong> <span class="text-green-600 dark:text-green-400">${result.correctAnswers.movingAxis}</span></div>
+                        <div><strong>可動域:</strong> <span class="text-green-600 dark:text-green-400">${result.correctAnswers.range}</span></div>
+                    </td>
+                    <td class="border border-gray-300 dark:border-gray-600 px-2 py-2 text-center">
+                        <div class="font-medium text-sm">${result.scores.total}/30</div>
+                        <div class="text-xs">
+                            <div>基本軸: ${result.scores.basicAxis}/10</div>
+                            <div>移動軸: ${result.scores.movingAxis}/10</div>
+                            <div>可動域: ${result.scores.range}/10</div>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 設定画面に戻る
+        function goToQuizSettings() {
+            document.getElementById('finalResult').classList.add('hidden');
+            document.getElementById('scoreSection').classList.add('hidden');
+            document.getElementById('quizSettings').classList.remove('hidden');
+        }
+
+        // イベントリスナー
+        document.getElementById('submitAnswer').addEventListener('click', checkAnswer);
+        document.getElementById('nextQuestion').addEventListener('click', nextQuestion);
+        document.getElementById('restartQuiz').addEventListener('click', () => startQuizWithSettings());
+        document.getElementById('changeDifficulty').addEventListener('click', goToQuizSettings);
+
+        // Enterキーで回答送信
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('questionArea').classList.contains('hidden')) {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
