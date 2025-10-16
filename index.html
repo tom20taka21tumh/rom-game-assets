@@ -34,10 +34,8 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-3">問題数</h3>
                     <div class="flex items-center space-x-4">
-                        <!-- ★★★ 修正点1: maxを"10"に変更 ★★★ -->
                         <input type="number" id="questionCount" min="1" max="10" value="10" class="w-20 px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
                         <span class="text-gray-600 dark:text-gray-300">問</span>
-                        <!-- ★★★ 修正点2: 説明文を"(1〜10問)"に変更 ★★★ -->
                         <span class="text-sm text-gray-500 dark:text-gray-400">(1〜10問)</span>
                     </div>
                 </div>
@@ -219,7 +217,7 @@
                     
                     <div>
                         <label for="rangeOfMotion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">参考可動域 (10点)</label>
-                        <input type="text" id="rangeOfMotion" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="例: 0-180°">
+                        <input type="text" id="rangeOfMotion" class="w-full px-3 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="例: 0-180">
                     </div>
                 </div>
 
@@ -446,7 +444,6 @@
                 return;
             }
             const requestedCount = parseInt(document.getElementById('questionCount').value);
-            // ★★★ 修正点3: バリデーションを10問までに変更 ★★★
             if (isNaN(requestedCount) || requestedCount < 1 || requestedCount > 10) {
                 showCustomAlert('問題数は1〜10の間で入力してください。');
                 return;
@@ -495,17 +492,22 @@
             const userBasicAxis = document.getElementById('basicAxis').value.trim();
             const userMovingAxis = document.getElementById('movingAxis').value.trim();
             const userRange = document.getElementById('rangeOfMotion').value.trim();
+            
+            // ★★★ 修正点2: 正解表示の角度から単位を削除 ★★★
             let correctRangeText;
             if (question.unit === 'cm' || question.minValue === 'N/A') {
-                correctRangeText = `距離で測定(${question.unit})`;
+                correctRangeText = `距離で測定(cm)`;
             } else {
-                correctRangeText = `${question.minValue}-${question.maxValue}${question.unit}`;
+                correctRangeText = `${question.minValue}-${question.maxValue}`;
             }
+            
             const basicAxisScore = checkSimilarity(userBasicAxis, question.basicAxis) ? 10 : 0;
             const movingAxisScore = checkSimilarity(userMovingAxis, question.movingAxis) ? 10 : 0;
             const rangeScore = (question.unit === 'cm' || question.minValue === 'N/A') ? (userRange.includes('距離') || userRange.includes('cm') ? 10 : 0) : checkRangeSimilarity(userRange, question.minValue, question.maxValue) ? 10 : 0;
+            
             const questionScore = basicAxisScore + movingAxisScore + rangeScore;
             totalScore += questionScore;
+            
             const result = {
                 question: question,
                 userAnswers: { basicAxis: userBasicAxis, movingAxis: userMovingAxis, range: userRange },
@@ -516,6 +518,7 @@
             showResult(result);
         }
 
+        // ★★★ 修正点1: 類似度の閾値を0.7 (70%) に変更 ★★★
         function checkSimilarity(userAnswer, correctAnswer) {
             if (!userAnswer) return false;
             const normalize = (str) => str.replace(/[（()）]/g, ' ').replace(/[、。・\s]/g, '').toLowerCase();
@@ -525,7 +528,7 @@
             const maxLength = Math.max(userNorm.length, correctNorm.length);
             if (maxLength === 0) return true;
             const similarity = (maxLength - distance) / maxLength;
-            return similarity >= 0.8;
+            return similarity >= 0.7; // 80%から70%に緩和
         }
         
         function levenshtein(a, b) {
@@ -541,6 +544,7 @@
             return matrix[b.length][a.length];
         }
 
+        // 角度の判定ロジック (入力から数値のみを抽出するため、単位があってもなくてもOK)
         function checkRangeSimilarity(userAnswer, minVal, maxVal) {
             if (!userAnswer) return false;
             const userNumbers = userAnswer.match(/-?\d+/g);
@@ -681,7 +685,6 @@
         }
 
         function openPrefillForm(studentId) {
-            // ★★★ データを軽量化 ★★★
             const leanQuestionResults = questionResults.map(r => ({
                 id: r.question.id,
                 ua: { ba: r.userAnswers.basicAxis, ma: r.userAnswers.movingAxis, rom: r.userAnswers.range },
@@ -758,7 +761,6 @@
             modal.querySelector('#confirmBtn').focus();
         }
         
-        // ★★★ 学籍番号入力と形式チェック用の関数 ★★★
         function showCustomPromptForID(onSubmit) {
             const modal = createModalBase();
             modal.innerHTML = `
@@ -778,15 +780,13 @@
 
             const doSubmit = () => {
                 const idPattern = /^\d{3}P\d{3}$/;
-                // 入力値を大文字に変換してチェック
                 const value = input.value.toUpperCase();
 
                 if (idPattern.test(value)) {
                     modal.remove();
                     onSubmit(value);
                 } else {
-                    // 形式が違う場合はエラー表示
-                    input.value = ''; // 入力をクリア
+                    input.value = '';
                     showCustomAlert('学籍番号の形式が正しくありません。\n例: 121P025\n(半角数字3桁 + 大文字P + 半角数字3桁)');
                     input.focus();
                 }
